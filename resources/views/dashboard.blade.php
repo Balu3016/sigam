@@ -115,7 +115,7 @@
                     <i class="bi bi-arrow-repeat"></i> Sincronizar
                 </button>
                 <button class="btn btn-success btn-sm rounded-3 px-3 fw-bold d-flex align-items-center gap-2 shadow" data-bs-toggle="modal" data-bs-target="#modalRegistroUsuario">
-                    <i class="bi bi-plus-lg"></i> Alta de Usuario
+                    <i class="bi bi-plus-lg"></i> Alta Usuario
                 </button>
             </div>
         </div>
