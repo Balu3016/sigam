@@ -46,6 +46,60 @@ A diferencia de sistemas convencionales que aplican filtros manuales en controla
 
 ---
 
+# 1. Optimización de dependencias sin herramientas de desarrollo
+composer install --optimize-autoloader --no-dev
+
+# 2. Caché de configuración y rutas para minimizar E/S en disco
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 3. Permisos de directorio en servidor Linux (Nginx/Apache)
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+---
+
+# 1. Optimización de dependencias sin herramientas de desarrollo
+composer install --optimize-autoloader --no-dev
+
+# 2. Caché de configuración y rutas para minimizar E/S en disco
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 3. Permisos de directorio en servidor Linux (Nginx/Apache)
+sudo chown -R www-data:www-data storage bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+
+---
+
+## 📄 Licencia & Derechos Reservados
+
+### 1. Propiedad Intelectual y Titularidad
+El diseño de arquitectura, código fuente, esquemas de base de datos, módulos de lógica de negocio, interfaces de usuario y documentación técnica pertenecientes a esta plataforma son propiedad intelectual exclusiva del **Ing. Gustavo García Figueroa** y de las entidades corporativas o gubernamentales debidamente autorizadas.
+
+Todos los derechos de autor, marcas registradas, modelos de utilidades y secretos comerciales derivados de este software están protegidos por las leyes de propiedad intelectual y los tratados internacionales correspondientes.
+
+---
+
+### 2. Términos de Licencia (Licencia Privativa Enterprise)
+Queda estrictamente prohibida la reproducción, distribución, modificación, ingeniería inversa, descompilación, venta, sublicenciamiento o comercialización total o parcial de este software sin la autorización previa, explícita y por escrito del titular de los derechos.
+
+* **Uso Autorizado:** Otorgado únicamente mediante convenio, contrato de prestación de servicios o licencias corporativas/gubernamentales específicas.
+* **Uso No Autorizado:** El uso de este sistema o de sus componentes fuera del marco contractual establecido constituirá una infracción directa a la legislación de propiedad intelectual y dará lugar a las acciones legales pertinentes.
+
+---
+
+### 3. Exención de Responsabilidad (Disclaimer)
+Este software se entrega *"tal cual"* (*AS IS*), sin garantías explícitas o implícitas de ningún tipo, incluidas, entre otras, las garantías de comerciabilidad o idoneidad para un propósito particular. En ningún caso los autores o titulares de los derechos serán responsables de reclamos, daños u otras responsabilidades derivadas del uso indebido, fallas de terceros o manipulación no autorizada de la plataforma.
+
+---
+
+**Ingeniería de Software & Arquitectura de Sistemas**  
+**Derechos Reservados © 2026, Ing. Gustavo García Figueroa.** *All rights reserved.*
+---
+
 ## 📂 Arquitectura del Repositorio
 
 ```text
