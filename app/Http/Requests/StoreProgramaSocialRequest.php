@@ -27,7 +27,6 @@ class StoreProgramaSocialRequest extends FormRequest
             'nombre' => ['required', 'string', 'max:150'],
             'descripcion' => ['nullable', 'string'],
             'categoria' => ['required', 'string', Rule::in(['alimentario', 'economico', 'educativo', 'salud', 'vivienda', 'infraestructura'])],
-            'presupuesto_anual' => ['nullable', 'numeric', 'min:0', 'max:9999999999.99'],
             'tipo_apoyo' => ['required', 'string', Rule::in(['monetario', 'especie', 'servicio'])],
             'periodicidad' => ['required', 'string', Rule::in(['unico', 'mensual', 'bimensual', 'trimestral', 'anual'])],
             'requisitos' => ['nullable', 'array'],

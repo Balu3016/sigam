@@ -16,27 +16,66 @@ class EntregaController extends Controller
     /**
      * Muestra el registro centralizado de entregas de apoyos.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $search = trim($request->get('search', ''));
+        $search = trim($request->get('search'));
 
         $entregas = Entrega::with(['beneficiario', 'programaSocial', 'localidad', 'usuario'])
             ->when($search, function ($query, $search) {
-                $query->whereHas('beneficiario', function ($q) use ($search) {
-                    $q->where('curp', 'LIKE', "%{$search}%")
-                      ->orWhere('nombre', 'LIKE', "%{$search}%")
-                      ->orWhere('primer_apellido', 'LIKE', "%{$search}%");
-                })->orWhereHas('programaSocial', function ($q) use ($search) {
-                    $q->where('nombre', 'LIKE', "%{$search}%")
-                      ->orWhere('clave', 'LIKE', "%{$search}%");
-                })->orWhere('folio_acta', 'LIKE', "%{$search}%");
+                $query->where('folio_acta', 'LIKE', "%{$search}%")
+                      ->orWhereHas('beneficiario', function ($q) use ($search) {
+                          $q->where('nombre_completo', 'LIKE', "%{$search}%")
+                            ->orWhere('curp', 'LIKE', "%{$search}%");
+                      })
+                      ->orWhereHas('programaSocial', function ($q) use ($search) {
+                          $q->where('nombre', 'LIKE', "%{$search}%");
+                      })
+                      ->orWhereHas('localidad', function ($q) use ($search) {
+                          $q->where('nombre', 'LIKE', "%{$search}%");
+                      })
+                      ->orWhereHas('usuario', function ($q) use ($search) {
+                          $q->where('name', 'LIKE', "%{$search}%");
+                      });
             })
             ->orderBy('fecha_entrega', 'desc')
             ->orderBy('id', 'desc')
             ->paginate(15)
             ->withQueryString();
 
-        return view('entregas.index', compact('entregas', 'search'));
+        return view('entregas.index', compact('entregas'));
+    }
+
+    public function edit($id)
+    {
+        $entrega = Entrega::findOrFail($id);
+        
+        // Consultar los listados para llenar los selectores
+        $beneficiarios = Beneficiario::with('entregas.programaSocial', 'entregas.usuario')->get();
+        $programas = ProgramaSocial::all();
+
+        return view('entregas.edit', compact('entrega', 'beneficiarios', 'programas'));
+    }
+
+    /**
+     * Actualiza los datos de la entrega en la base de datos.
+     */
+    public function update(Request $request, $id)
+    {
+        $entrega = Entrega::findOrFail($id);
+
+        $request->validate([
+            'beneficiario_id'    => 'required|exists:beneficiarios,id',
+            'programa_social_id' => 'required|exists:programa_socials,id',
+            'fecha_entrega'      => 'required|date',
+            'cantidad'           => 'required|integer|min:1',
+            'latitud'            => 'required',
+            'longitud'           => 'required',
+        ]);
+
+        $entrega->update($request->all());
+
+        return redirect()->route('entregas.index')
+            ->with('success', 'La entrega se actualizó correctamente.');
     }
 
     /**
@@ -72,6 +111,8 @@ class EntregaController extends Controller
             'cantidad' => $request->cantidad,
             'folio_acta' => $request->folio_acta,
             'observaciones' => $request->observaciones,
+            'latitud'           => $request->latitud, 
+            'longitud'          => $request->longitud,
             'estatus' => 'entregado',
             'user_id' => Auth::id(),
         ]);

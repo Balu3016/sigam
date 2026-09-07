@@ -119,27 +119,7 @@
                         @enderror
                     </div>
 
-                    <!-- Presupuesto Anual -->
-                    <div class="col-12 col-md-6">
-                        <label for="presupuesto_anual" class="form-label fw-bold small text-dark">
-                            Presupuesto Anual Asignado ($ MXN)
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light">$</span>
-                            <input type="number" 
-                                   step="0.01" 
-                                   name="presupuesto_anual" 
-                                   id="presupuesto_anual" 
-                                   class="form-control @error('presupuesto_anual') is-invalid @enderror" 
-                                   value="{{ old('presupuesto_anual') }}" 
-                                   placeholder="0.00">
-                        </div>
-                        <div class="form-text">Opcional. Monto total presupuestado en pesos mexicanos.</div>
-                        @error('presupuesto_anual')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
+                    
                     <!-- Descripción del Programa -->
                     <div class="col-12 col-md-6">
                         <label for="descripcion" class="form-label fw-bold small text-dark">

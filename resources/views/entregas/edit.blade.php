@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Asignar Apoyo Social')
+@section('title', 'Editar Entrega de Apoyo Social')
 
 @push('styles')
 <!-- Leaflet CSS -->
@@ -21,10 +21,10 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
             <h4 class="fw-bold text-dark mb-1">
-                <i class="bi bi-box-seam-fill text-success me-2"></i>Registrar Entrega de Apoyo Social
+                <i class="bi bi-pencil-square text-warning me-2"></i>Editar Entrega de Apoyo Social
             </h4>
             <p class="text-muted small mb-0">
-                Selecciona al beneficiario y el programa correspondiente para asentar el otorgamiento.
+                Modifica los datos de la entrega o actualiza la ubicación georreferenciada.
             </p>
         </div>
         <div>
@@ -39,8 +39,9 @@
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-body p-4">
             
-            <form action="{{ route('entregas.store') }}" method="POST">
+            <form action="{{ route('entregas.update', $entrega->id) }}" method="POST">
                 @csrf
+                @method('PUT')
 
                 <h6 class="fw-bold text-dark text-uppercase font-monospace mb-3" style="font-size: 0.8rem;">
                     <i class="bi bi-diagram-3-fill me-2 text-primary"></i>Datos de Asignación Conjunta
@@ -54,12 +55,13 @@
                             Beneficiario (Ciudadano) <span class="text-danger">*</span>
                         </label>
                         <select name="beneficiario_id" id="beneficiario_id" class="form-select @error('beneficiario_id') is-invalid @enderror" required onchange="verificarHistorial(this)">
-                            <option value="" disabled {{ old('beneficiario_id') ? '' : 'selected' }}>Selecciona un ciudadano activo...</option>
+                            <option value="" disabled>Selecciona un ciudadano activo...</option>
                             @foreach($beneficiarios as $b)
                                 @php
                                     $historial = $b->entregas->map(function($e) {
                                         $fecha = $e->fecha_entrega ? \Carbon\Carbon::parse($e->fecha_entrega)->format('d/m/Y') : 'Sin fecha';
                                         return [
+                                            'id' => $e->id,
                                             'programa' => $e->programaSocial->nombre ?? 'Programa General',
                                             'usuario' => $e->usuario->name ?? 'Sistema',
                                             'fecha' => $fecha
@@ -67,7 +69,7 @@
                                     });
                                 @endphp
                                 <option value="{{ $b->id }}" 
-                                        {{ old('beneficiario_id') == $b->id ? 'selected' : '' }}
+                                        {{ old('beneficiario_id', $entrega->beneficiario_id) == $b->id ? 'selected' : '' }}
                                         data-historial='@json($historial)'>
                                     {{ $b->primer_apellido }} {{ $b->segundo_apellido }} {{ $b->nombre }} — [{{ $b->curp }}]
                                 </option>
@@ -79,7 +81,7 @@
                             <div class="alert alert-warning border-warning shadow-sm mb-0">
                                 <div class="d-flex align-items-center gap-2 fw-bold text-dark mb-2">
                                     <i class="bi bi-exclamation-triangle-fill text-warning fs-5"></i>
-                                    <span>Atención: Este ciudadano ya cuenta con apoyos registrados:</span>
+                                    <span>Atención: Este ciudadano cuenta con apoyos registrados:</span>
                                 </div>
                                 <ul id="lista-historial" class="mb-0 small text-dark ps-3"></ul>
                             </div>
@@ -97,9 +99,9 @@
                             Programa Social <span class="text-danger">*</span>
                         </label>
                         <select name="programa_social_id" id="programa_social_id" class="form-select @error('programa_social_id') is-invalid @enderror" required>
-                            <option value="" disabled {{ old('programa_social_id') ? '' : 'selected' }}>Selecciona el programa origen...</option>
+                            <option value="" disabled>Selecciona el programa origen...</option>
                             @foreach($programas as $p)
-                                <option value="{{ $p->id }}" {{ old('programa_social_id') == $p->id ? 'selected' : '' }}>
+                                <option value="{{ $p->id }}" {{ old('programa_social_id', $entrega->programa_social_id) == $p->id ? 'selected' : '' }}>
                                     {{ $p->nombre }} ({{ $p->codigo ?? $p->clave }}) — {{ ucfirst($p->tipo_apoyo ?? 'General') }}
                                 </option>
                             @endforeach
@@ -128,7 +130,7 @@
                                name="fecha_entrega" 
                                id="fecha_entrega" 
                                class="form-control @error('fecha_entrega') is-invalid @enderror" 
-                               value="{{ old('fecha_entrega', date('Y-m-d')) }}" 
+                               value="{{ old('fecha_entrega', \Carbon\Carbon::parse($entrega->fecha_entrega)->format('Y-m-d')) }}" 
                                required>
                         @error('fecha_entrega')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -145,7 +147,7 @@
                                id="cantidad" 
                                min="1"
                                class="form-control @error('cantidad') is-invalid @enderror" 
-                               value="{{ old('cantidad', 1) }}" 
+                               value="{{ old('cantidad', $entrega->cantidad) }}" 
                                required>
                         @error('cantidad')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -161,7 +163,7 @@
                                name="folio_acta" 
                                id="folio_acta" 
                                class="form-control font-monospace @error('folio_acta') is-invalid @enderror" 
-                               value="{{ old('folio_acta') }}" 
+                               value="{{ old('folio_acta', $entrega->folio_acta) }}" 
                                placeholder="Ej. ACTA-2026-0089">
                         @error('folio_acta')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -177,7 +179,7 @@
                                   id="observaciones" 
                                   rows="2" 
                                   class="form-control @error('observaciones') is-invalid @enderror" 
-                                  placeholder="Detalles sobre las condiciones de la entrega o documentación cotejada...">{{ old('observaciones') }}</textarea>
+                                  placeholder="Detalles sobre las condiciones de la entrega o documentación cotejada...">{{ old('observaciones', $entrega->observaciones) }}</textarea>
                         @error('observaciones')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -202,7 +204,7 @@
                                    name="latitud" 
                                    id="latitud" 
                                    class="form-control font-monospace @error('latitud') is-invalid @enderror" 
-                                   value="{{ old('latitud', '19.2731') }}" 
+                                   value="{{ old('latitud', $entrega->latitud ?? '19.2731') }}" 
                                    placeholder="Ej. 19.273100" 
                                    required readonly>
                             @error('latitud')
@@ -218,7 +220,7 @@
                                    name="longitud" 
                                    id="longitud" 
                                    class="form-control font-monospace @error('longitud') is-invalid @enderror" 
-                                   value="{{ old('longitud', '-99.4612') }}" 
+                                   value="{{ old('longitud', $entrega->longitud ?? '-99.4612') }}" 
                                    placeholder="Ej. -99.461200" 
                                    required readonly>
                             @error('longitud')
@@ -226,31 +228,23 @@
                             @enderror
                         </div>
 
-                        <button type="button" id="btn-mi-ubicacion" class="btn btn-outline-primary btn-sm w-100 d-inline-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-crosshair"></i>
-                            <span>Obtener Mi Ubicación Actual</span>
-                        </button>
-                        <div class="form-text mt-1 text-muted" style="font-size: 0.75rem;">
-                            Haz clic en el mapa o arrastra el marcador para ajustar el lugar exacto.
-                        </div>
+                        <p class="text-muted small">
+                            <i class="bi bi-info-circle me-1"></i>Puedes arrastrar el marcador en el mapa para ajustar el punto de entrega exacto.
+                        </p>
                     </div>
 
-                    <!-- Visualizador Mapa Interactivo -->
                     <div class="col-12 col-lg-7">
-                        <div id="mapa-captura" class="border shadow-sm"></div>
+                        <div id="mapa-captura" class="shadow-sm border"></div>
                     </div>
                 </div>
 
-                <hr class="my-4 text-secondary">
-
                 <!-- Botones de Acción -->
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('entregas.index') }}" class="btn btn-light border">
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{{ route('entregas.index') }}" class="btn btn-light px-4 border fw-semibold">
                         Cancelar
                     </a>
-                    <button type="submit" class="btn btn-success d-inline-flex align-items-center gap-2">
-                        <i class="bi bi-check-lg"></i>
-                        <span>Guardar y Asentar Entrega</span>
+                    <button type="submit" class="btn btn-warning px-4 fw-bold">
+                        <i class="bi bi-pencil-square me-2"></i>Actualizar Entrega
                     </button>
                 </div>
 
@@ -258,104 +252,89 @@
 
         </div>
     </div>
+
 </div>
+@endsection
 
 @push('scripts')
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-function verificarHistorial(select) {
-    if (!select || select.selectedIndex < 0) return;
+    // Referencia de la entrega actual
+    const currentEntregaId = {{ $entrega->id }};
 
-    const option = select.options[select.selectedIndex];
-    const rawData = option.getAttribute('data-historial');
-    
-    if (!rawData) {
-        document.getElementById('alerta-historial').classList.add('d-none');
-        return;
-    }
+    function verificarHistorial(select) {
+        const option = select.options[select.selectedIndex];
+        const historialRaw = option.getAttribute('data-historial');
+        const alertaContainer = document.getElementById('alerta-historial');
+        const listaHistorial = document.getElementById('lista-historial');
 
-    const historial = JSON.parse(rawData || '[]');
-    const contenedor = document.getElementById('alerta-historial');
-    const lista = document.getElementById('lista-historial');
+        listaHistorial.innerHTML = '';
 
-    lista.innerHTML = '';
+        if (historialRaw) {
+            try {
+                const historial = JSON.parse(historialRaw);
 
-    if (historial.length > 0) {
-        historial.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `Recibió <strong>${item.programa}</strong> (Atendido por: <em>${item.usuario}</em>) el <strong>${item.fecha}</strong>`;
-            lista.appendChild(li);
-        });
-        contenedor.classList.remove('d-none');
-    } else {
-        contenedor.classList.add('d-none');
-    }
-}
+                // Filtrar el historial para omitir el registro actual que se está editando
+                const otrosRegistros = historial.filter(e => e.id != currentEntregaId);
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Historial de beneficiario
-    const selectBeneficiario = document.getElementById('beneficiario_id');
-    if (selectBeneficiario && selectBeneficiario.value) {
-        verificarHistorial(selectBeneficiario);
-    }
-
-    // 2. Lógica del Mapa de Geolocalización
-    const latInput = document.getElementById('latitud');
-    const lngInput = document.getElementById('longitud');
-
-    let initialLat = parseFloat(latInput.value) || 19.2731;
-    let initialLng = parseFloat(lngInput.value) || -99.4612;
-
-    const map = L.map('mapa-captura').setView([initialLat, initialLng], 14);
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    let marker = L.marker([initialLat, initialLng], { draggable: true }).addTo(map);
-
-    function actualizarCoordenadas(lat, lng) {
-        latInput.value = parseFloat(lat).toFixed(6);
-        lngInput.value = parseFloat(lng).toFixed(6);
-    }
-
-    // Evento arrastrar marcador
-    marker.on('dragend', function (e) {
-        const position = marker.getLatLng();
-        actualizarCoordenadas(position.lat, position.lng);
-    });
-
-    // Evento clic en el mapa
-    map.on('click', function (e) {
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-        marker.setLatLng([lat, lng]);
-        actualizarCoordenadas(lat, lng);
-    });
-
-    // Botón GPS Navegador
-    document.getElementById('btn-mi-ubicacion')?.addEventListener('click', function () {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.setView([lat, lng], 16);
-                marker.setLatLng([lat, lng]);
-                actualizarCoordenadas(lat, lng);
-            }, function () {
-                alert('No se pudo obtener la ubicación actual.');
-            });
+                if (otrosRegistros.length > 0) {
+                    otrosRegistros.forEach(item => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${item.programa}</strong> — Entregado el ${item.fecha} por <em>${item.usuario}</em>`;
+                        listaHistorial.appendChild(li);
+                    });
+                    alertaContainer.classList.remove('d-none');
+                } else {
+                    alertaContainer.classList.add('d-none');
+                }
+            } catch (e) {
+                console.error("Error al parsear el historial del beneficiario", e);
+                alertaContainer.classList.add('d-none');
+            }
         } else {
-            alert('Tu navegador no soporta geolocalización.');
+            alertaContainer.classList.add('d-none');
         }
-    });
+    }
 
-    // Reajuste de renderizado
-    setTimeout(() => map.invalidateSize(), 300);
-});
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ejecutar verificación del historial al cargar la página
+        const selectBeneficiario = document.getElementById('beneficiario_id');
+        if (selectBeneficiario && selectBeneficiario.value) {
+            verificarHistorial(selectBeneficiario);
+        }
+
+        // Obtener valores iniciales de coordenadas
+        let latInicial = parseFloat(document.getElementById('latitud').value) || 19.2731;
+        let lngInicial = parseFloat(document.getElementById('longitud').value) || -99.4612;
+
+        // Inicializar Mapa Leaflet
+        const map = L.map('mapa-captura').setView([latInicial, lngInicial], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Marcador Arrastrable
+        let marker = L.marker([latInicial, lngInicial], { draggable: true }).addTo(map);
+
+        function actualizarCoordenadas(lat, lng) {
+            document.getElementById('latitud').value = lat.toFixed(6);
+            document.getElementById('longitud').value = lng.toFixed(6);
+        }
+
+        // Evento al arrastrar el marcador
+        marker.on('dragend', function (e) {
+            const position = marker.getLatLng();
+            actualizarCoordenadas(position.lat, position.lng);
+        });
+
+        // Evento al hacer clic en el mapa
+        map.on('click', function (e) {
+            marker.setLatLng(e.latlng);
+            actualizarCoordenadas(e.latlng.lat, e.latlng.lng);
+        });
+    });
 </script>
 @endpush
-@endsection

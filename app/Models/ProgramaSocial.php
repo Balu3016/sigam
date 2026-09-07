@@ -27,7 +27,6 @@ class ProgramaSocial extends Model
         'nombre',
         'descripcion',
         'categoria',
-        'presupuesto_anual',
         'tipo_apoyo',
         'periodicidad',
         'requisitos',

@@ -28,15 +28,17 @@
                     </li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2 py-2 mt-1" href="{{ route('profile.edit') }}">
-                            <i class="bi bi-person-gear text-warning"></i> Mi Perfil
+                            <i class="bi bi-person-gear text-warning fs-6"></i>
+                            <span>Mi Perfil</span>
                         </a>
                     </li>
-                    <li><hr class="dropdown-divider"></li>
+                    <li><hr class="dropdown-divider my-1"></li>
                     <li>
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
                             @csrf
-                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger">
-                                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger w-100 text-start border-0 bg-transparent">
+                                <i class="bi bi-box-arrow-right fs-6"></i>
+                                <span>Cerrar Sesión</span>
                             </button>
                         </form>
                     </li>

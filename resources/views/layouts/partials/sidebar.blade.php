@@ -1,5 +1,4 @@
 <!-- Sidebar / Menú Lateral Institucional -->
-<!-- Sidebar / Menú Lateral Institucional -->
 <aside id="sidebar" class="bg-dark text-white vh-100 d-flex flex-column flex-shrink-0 p-3 position-fixed top-0 start-0 z-3 transition-all" style="width: 260px; transition: all 0.3s ease;">
     
     <!-- Marca & Identidad Institucional -->
@@ -18,7 +17,7 @@
     <!-- Navegación Principal -->
     <ul class="nav nav-pills flex-column mb-auto gap-1">
         
-        <!-- Dashboard -->
+        <!-- Dashboard (Todos los roles) -->
         <li class="nav-item">
             <a href="{{ route('dashboard') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('dashboard') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
                 <i class="bi bi-speedometer2"></i>
@@ -27,38 +26,40 @@
         </li>
 
         <!-- ==================================================== -->
-        <!-- SECCIÓN 1: CATÁLOGOS BASE (Creación Individual)      -->
+        <!-- SECCIÓN 1: CATÁLOGOS BASE (Admin y Supervisor)      -->
         <!-- ==================================================== -->
-        <li class="nav-header text-uppercase text-secondary font-monospace mt-3 mb-1 px-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-            <i class="bi bi-folder-fill me-1"></i> Catálogos Base
-        </li>
+        @if(auth()->user()->isAdmin() || auth()->user()->isSupervisor())
+            <li class="nav-header text-uppercase text-secondary font-monospace mt-3 mb-1 px-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                <i class="bi bi-folder-fill me-1"></i> Catálogos Base
+            </li>
 
-        <!-- Módulo Localidades -->
-        <li class="nav-item">
-            <a href="{{ route('localidades.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('localidades.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
-                <i class="bi bi-geo-alt-fill text-warning"></i>
-                <span>Localidades</span>
-            </a>
-        </li>
+            <!-- Módulo Localidades -->
+            <li class="nav-item">
+                <a href="{{ route('localidades.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('localidades.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
+                    <i class="bi bi-geo-alt-fill text-warning"></i>
+                    <span>Localidades</span>
+                </a>
+            </li>
 
-        <!-- Módulo Programas Sociales -->
-        <li class="nav-item">
-            <a href="{{ route('programas-sociales.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('programas-sociales.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
-                <i class="bi bi-journal-check text-warning"></i>
-                <span>Programas Sociales</span>
-            </a>
-        </li>
+            <!-- Módulo Programas Sociales -->
+            <li class="nav-item">
+                <a href="{{ route('programas-sociales.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('programas-sociales.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
+                    <i class="bi bi-journal-check text-warning"></i>
+                    <span>Programas Sociales</span>
+                </a>
+            </li>
 
-        <!-- Módulo Padrón de Beneficiarios -->
-        <li class="nav-item">
-            <a href="{{ route('beneficiarios.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('beneficiarios.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
-                <i class="bi bi-people-fill text-warning"></i>
-                <span>Padrón de Beneficiarios</span>
-            </a>
-        </li>
+            <!-- Módulo Padrón de Beneficiarios -->
+            <li class="nav-item">
+                <a href="{{ route('beneficiarios.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('beneficiarios.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
+                    <i class="bi bi-people-fill text-warning"></i>
+                    <span>Padrón de Beneficiarios</span>
+                </a>
+            </li>
+        @endif
 
         <!-- ==================================================== -->
-        <!-- SECCIÓN 2: OPERACIÓN Y CRUCES (Entregas y Asignación)-->
+        <!-- SECCIÓN 2: OPERACIÓN Y CRUCES (Todos los roles)      -->
         <!-- ==================================================== -->
         <li class="nav-header text-uppercase text-secondary font-monospace mt-3 mb-1 px-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
             <i class="bi bi-diagram-3-fill me-1"></i> Operación Conjunta
@@ -73,19 +74,29 @@
         </li>
 
         <!-- ==================================================== -->
-        <!-- SECCIÓN 3: ADMINISTRACIÓN & USUARIOS                -->
+        <!-- SECCIÓN 3: ADMINISTRACIÓN & USUARIOS (Solo Admin)    -->
         <!-- ==================================================== -->
-        <li class="nav-header text-uppercase text-secondary font-monospace mt-3 mb-1 px-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-            <i class="bi bi-gear-fill me-1"></i> Administración
-        </li>
+        @if(auth()->user()->isAdmin())
+            <li class="nav-header text-uppercase text-secondary font-monospace mt-3 mb-1 px-2" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                <i class="bi bi-gear-fill me-1"></i> Administración
+            </li>
 
-        <!-- Botón para Abrir Modal de Registro -->
-        <li class="nav-item">
-            <a href="#" class="nav-link text-white d-flex align-items-center gap-2 hover-bg-dark-subtle" data-bs-toggle="modal" data-bs-target="#modalRegistroUsuario">
-                <i class="bi bi-person-plus-fill text-success"></i>
-                <span>Registrar Usuario</span>
-            </a>
-        </li>
+            <!-- Lista de Usuarios -->
+            <li class="nav-item">
+                <a href="{{ route('usuarios.index') }}" class="nav-link text-white d-flex align-items-center gap-2 {{ request()->routeIs('usuarios.*') ? 'active bg-success' : 'hover-bg-dark-subtle' }}">
+                    <i class="bi bi-people-fill text-info"></i>
+                    <span>Lista de Usuarios</span>
+                </a>
+            </li>
+
+            <!-- Botón para Abrir Modal de Registro -->
+            <li class="nav-item">
+                <a href="#" class="nav-link text-white d-flex align-items-center gap-2 hover-bg-dark-subtle" data-bs-toggle="modal" data-bs-target="#modalRegistroUsuario">
+                    <i class="bi bi-person-plus-fill text-success"></i>
+                    <span>Registrar Usuario</span>
+                </a>
+            </li>
+        @endif
 
     </ul>
 
@@ -98,8 +109,9 @@
 </aside>
 
 <!-- ==================================================== -->
-<!-- MODAL DE REGISTRO CYBER-DARK DE USUARIOS            -->
+<!-- MODAL DE REGISTRO CYBER-DARK DE USUARIOS (Solo Admin)-->
 <!-- ==================================================== -->
+@if(auth()->user()->isAdmin())
 <div class="modal fade" id="modalRegistroUsuario" tabindex="-1" aria-labelledby="modalRegistroLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-white border-0 shadow-lg" style="background-color: #0b0f19; border: 1px solid rgba(16, 185, 129, 0.3) !important;">
@@ -147,7 +159,7 @@
                             @endphp
                             @foreach($listaDependencias as $dependencia)
                                 <option value="{{ $dependencia->id }}" class="bg-dark text-white">
-                                    {{ $dependencia->nombre }} ({{ $dependencia->siglas }})
+                                    {{ $dependencia->nombre ?? $dependencia->nombre_dependencia }} ({{ $dependencia->siglas ?? 'S/A' }})
                                 </option>
                             @endforeach
                         </select>
@@ -191,3 +203,4 @@
         </div>
     </div>
 </div>
+@endif

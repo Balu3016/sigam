@@ -22,11 +22,15 @@ class Entrega extends Model
         'estatus',
         'observaciones',
         'user_id',
+        'latitud',
+        'longitud',
     ];
 
     protected $casts = [
         'fecha_entrega' => 'date',
-        'cantidad' => 'integer',
+        'cantidad'      => 'integer',
+        'latitud'       => 'float',
+        'longitud'      => 'float',
     ];
 
     // Relación con Beneficiario

@@ -37,35 +37,49 @@
         border-left: 4px solid #a855f7 !important;
     }
 
-    /* Estilo del Mapa Dark */
+    /* Estilo del Contenedor del Mapa - Dimensiones Garantizadas */
     #mapa-ocoyoacac {
+        min-height: 480px;
         height: 480px;
         width: 100%;
         border-radius: 0 0 0.75rem 0.75rem;
-        z-index: 1;
-        background: #0f172a;
+        z-index: 10;
+        background: #1e293b;
     }
 
-    /* Marcador Pulso Tipo Radar */
+    /* Marcador Pulso Tipo Radar Dinámico */
     .radar-pulse-icon {
         position: relative;
     }
     .radar-pulse {
         width: 16px;
         height: 16px;
-        background-color: #10b981;
         border-radius: 50%;
-        box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
     }
+
+    /* Variantes por intensidad de entregas */
+    .radar-low {
+        background-color: #10b981;
+        box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+    }
+    .radar-medium {
+        background-color: #f59e0b;
+        box-shadow: 0 0 10px #f59e0b, 0 0 20px #f59e0b;
+    }
+    .radar-high {
+        background-color: #ef4444;
+        box-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444;
+    }
+
     .radar-pulse::after {
         content: '';
-        width: 32px;
-        height: 32px;
-        border: 2px solid #10b981;
+        width: 34px;
+        height: 34px;
+        border: 2px solid currentColor;
         border-radius: 50%;
         position: absolute;
         top: -10px;
@@ -84,7 +98,8 @@
         background: #1e293b !important;
         color: #f8fafc !important;
         border: 1px solid #10b981;
-        border-radius: 8px !important;
+        border-radius: 10px !important;
+        box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
     }
     .leaflet-popup-tip {
         background: #1e293b !important;
@@ -195,9 +210,11 @@
             <div class="card card-dark rounded-4 shadow-lg border-0 h-100">
                 <div class="card-header bg-transparent border-bottom border-secondary border-opacity-25 py-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
-                        <i class="bi bi-map-fill text-success"></i> Mapa de Cobertura de Apoyos
+                        <i class="bi bi-map-fill text-success"></i> Cobertura Municipal Ocoyoacac
                     </h6>
-                    <span class="badge bg-dark border border-success text-success font-monospace">OCOYOACAC</span>
+                    <button id="btn-reset-vista" class="btn btn-outline-success btn-sm font-monospace py-0 px-2" style="font-size:0.75rem;">
+                        <i class="bi bi-crosshair me-1"></i> Centrar
+                    </button>
                 </div>
                 <div class="card-body p-0 position-relative">
                     <div id="mapa-ocoyoacac"></div>
@@ -213,7 +230,7 @@
                         <i class="bi bi-clock-history text-info"></i> Últimas Entregas Registradas
                     </h6>
                 </div>
-                <div class="card-body p-0 flex-grow-1 overflow-auto" style="max-height: 420px;">
+                <div class="card-body p-0 flex-grow-1 overflow-auto" style="max-height: 440px;">
                     <div class="list-group list-group-flush bg-transparent">
                         @forelse($ultimasEntregas ?? [] as $entrega)
                             <div class="list-group-item bg-transparent text-white border-bottom border-secondary border-opacity-25 p-3">
@@ -254,112 +271,85 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     
-    // 1. Inicializar mapa centrado en Ocoyoacac
+    // Coordenadas exactas del centro de Ocoyoacac
+    const CENTRO_OCOYOACAC = [19.2731, -99.4612];
+
+    // 1. Inicialización del mapa
     const map = L.map('mapa-ocoyoacac', {
+        center: CENTRO_OCOYOACAC,
+        zoom: 13,
         zoomControl: true,
         attributionControl: false
-    }).setView([19.2731, -99.4612], 13);
+    });
 
-    // 2. Capa Estilo Oscuro CartoDB
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // 2. Capa base OpenStreetMap
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        subdomains: 'abcd'
+        subdomains: 'abc'
     }).addTo(map);
 
-    // 3. Diccionario de respaldo ampliado (Fallback por si no vienen coords desde la BD)
-    const coordenadasFallback = {
-        "centro": [19.2731, -99.4612],
-        "cabecera municipal": [19.2731, -99.4612],
-        "cabecera": [19.2731, -99.4612],
-        "san pedro tultepec": [19.2778, -99.4917],
-        "tultepec": [19.2778, -99.4917],
-        "coapanoaya": [19.2615, -99.4589],
-        "el pedregal": [19.2812, -99.4520],
-        "pedregal": [19.2812, -99.4520],
-        "la marquesa": [19.3142, -99.3801],
-        "marquesa": [19.3142, -99.3801],
-        "juarez": [19.2690, -99.4680],
-        "juárez": [19.2690, -99.4680],
-        "lomas de los angeles": [19.2890, -99.4720],
-        "lomas de los ángeles": [19.2890, -99.4720],
-        "tepexoyuca": [19.2550, -99.4480],
-        "san jeronimo acazulco": [19.2950, -99.4120],
-        "san jerónimo acazulco": [19.2950, -99.4120],
-        "acazulco": [19.2950, -99.4120],
-        "cholula": [19.2710, -99.4550]
-    };
+    // 3. Reajuste de tamaño del mapa
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 300);
 
-    // 4. Datos transmitidos desde Laravel
-    const datosEntregas = @json($puntosMapa ?? []);
+    // Botón para centrar vista
+    document.getElementById('btn-reset-vista')?.addEventListener('click', () => {
+        map.flyTo(CENTRO_OCOYOACAC, 13);
+    });
 
-    console.log("Datos del Backend:", datosEntregas);
+    // 4. Datos recibidos desde el DashboardController ($puntosMapa)
+    const puntosEntrega = @json($puntosMapa ?? []);
 
-    // Icono personalizado con pulso radar
+    // Icono radar para cada punto de entrega
     const radarIcon = L.divIcon({
         className: 'radar-pulse-icon',
-        html: '<div class="radar-pulse"></div>',
+        html: `<div class="radar-pulse radar-low"></div>`,
         iconSize: [20, 20],
         iconAnchor: [10, 10]
     });
 
-    // 5. Renderizado Inteligente
-    const renderizarMarcador = (nombre, lat, lng, total) => {
-        let coords = null;
+    // 5. Renderizado de puntos en el mapa
+    if (Array.isArray(puntosEntrega) && puntosEntrega.length > 0) {
+        const marcadores = [];
 
-        // Opción A: Viene de la BD con coordenadas válidas
-        if (lat && lng && !isNaN(parseFloat(lat)) && !isNaN(parseFloat(lng))) {
-            coords = [parseFloat(lat), parseFloat(lng)];
-        } 
-        // Opción B: Si lat/lng vienen nulos o vacíos, busca en el diccionario
-        else if (nombre) {
-            const clave = nombre.toString().toLowerCase().trim();
-            if (coordenadasFallback[clave]) {
-                coords = coordenadasFallback[clave];
-            }
-        }
+        puntosEntrega.forEach(item => {
+            const lat = parseFloat(item.latitud);
+            const lng = parseFloat(item.longitud);
 
-        if (coords) {
-            const marker = L.marker(coords, { icon: radarIcon }).addTo(map);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                const marker = L.marker([lat, lng], { icon: radarIcon }).addTo(map);
 
-            const popupContent = `
-                <div style="font-family: system-ui; text-align: center; padding: 4px;">
-                    <span style="font-size:0.65rem; font-weight:bold; color:#10b981; letter-spacing:1px; text-transform:uppercase;">Localidad</span>
-                    <h6 style="margin:2px 0 8px 0; font-weight:bold; color:#ffffff;">${nombre}</h6>
-                    <div style="background:#0f172a; padding:8px; border-radius:6px; border:1px solid #334155;">
-                        <small style="color:#94a3b8; font-size:0.75rem;">Apoyos Entregados:</small><br>
-                        <strong style="font-size:1.2rem; color:#10b981;">${total}</strong>
+                const popupContent = `
+                    <div style="font-family: system-ui; text-align: left; min-width: 180px; padding: 2px;">
+                        <span style="font-size: 0.65rem; font-weight: bold; color: #10b981; letter-spacing: 1px; text-transform: uppercase;">
+                            Entrega #${item.id}
+                        </span>
+                        <h6 style="margin: 4px 0 8px 0; font-weight: bold; color: #ffffff;">
+                            ${item.beneficiario || 'Sin nombre'}
+                        </h6>
+                        <div style="background: #0f172a; padding: 8px; border-radius: 6px; border: 1px solid #334155;">
+                            <small style="color: #94a3b8; font-size: 0.75rem; display: block;">
+                                <strong style="color: #f59e0b;">Programa:</strong> ${item.programa || 'N/A'}
+                            </small>
+                            <small style="color: #94a3b8; font-size: 0.75rem; display: block; margin-top: 2px;">
+                                <strong style="color: #38bdf8;">Localidad:</strong> ${item.localidad || 'N/A'}
+                            </small>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
 
-            marker.bindPopup(popupContent);
-        } else {
-            console.warn(`Sin ubicación asignada para: "${nombre}"`);
-        }
-    };
-
-    // 6. Procesar la estructura JSON de manera robusta
-    if (Array.isArray(datosEntregas)) {
-        datosEntregas.forEach(item => {
-            const nombre = item.localidad || item.nombre || 'Desconocido';
-            const total = item.total ?? item.total_entregas ?? 1;
-            renderizarMarcador(nombre, item.latitud, item.longitud, total);
-        });
-    } else if (typeof datosEntregas === 'object' && datosEntregas !== null) {
-        Object.keys(datosEntregas).forEach(localidad => {
-            const info = datosEntregas[localidad];
-            if (typeof info === 'object' && info !== null) {
-                const lat = info.latitud ?? info.lat ?? null;
-                const lng = info.longitud ?? info.lng ?? null;
-                const total = info.total ?? info.cantidad ?? 1;
-                renderizarMarcador(localidad, lat, lng, total);
-            } else {
-                // Si la estructura era simple Key-Value -> "Centro": 5
-                renderizarMarcador(localidad, null, null, info);
+                marker.bindPopup(popupContent);
+                marcadores.push(marker);
             }
         });
-    }
 
+        // Opcional: Ajustar el zoom automáticamente para abarcar todos los puntos capturados
+        if (marcadores.length > 0) {
+            const group = new L.featureGroup(marcadores);
+            map.fitBounds(group.getBounds().pad(0.1));
+        }
+    }
 });
 </script>
 @endpush

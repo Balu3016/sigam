@@ -28,16 +28,22 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // 3. Conteo de entregas agrupadas por nombre de Localidad para alimentar el mapa
+        // 3. Puntos exactos de entregas guardados con geolocalización directa
         $puntosMapa = DB::table('entregas')
-            ->join('beneficiarios', 'entregas.beneficiario_id', '=', 'beneficiarios.id')
-            ->join('localidades', 'beneficiarios.localidad_id', '=', 'localidades.id')
-            ->select('localidades.nombre as localidad', DB::raw('count(entregas.id) as total'))
-            ->groupBy('localidades.nombre')
-            ->pluck('total', 'localidad')
-            ->map(function ($total) {
-                return ['total' => $total];
-            });
+            ->leftJoin('beneficiarios', 'entregas.beneficiario_id', '=', 'beneficiarios.id')
+            ->leftJoin('localidades', 'entregas.localidad_id', '=', 'localidades.id')
+            ->leftJoin('programas_sociales', 'entregas.programa_social_id', '=', 'programas_sociales.id')
+            ->select(
+                'entregas.id',
+                'entregas.latitud',
+                'entregas.longitud',
+                'beneficiarios.nombre as beneficiario',
+                'localidades.nombre as localidad',
+                'programas_sociales.nombre as programa'
+            )
+            ->whereNotNull('entregas.latitud')
+            ->whereNotNull('entregas.longitud')
+            ->get();
 
         return view('dashboard', compact(
             'totalBeneficiarios',

@@ -20,6 +20,8 @@ class StoreEntregaRequest extends FormRequest
             'cantidad' => ['required', 'integer', 'min:1'],
             'folio_acta' => ['nullable', 'string', 'max:50'],
             'observaciones' => ['nullable', 'string', 'max:500'],
+            'latitud'            => ['required', 'numeric'], // <--- AGREGAR AQUÍ
+            'longitud'           => ['required', 'numeric'], // <--- AGREGAR AQUÍ
         ];
     }
 
