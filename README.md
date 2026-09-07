@@ -23,11 +23,11 @@ En la gestión gubernamental de programas sociales, los sistemas legados enfrent
 ### 1. 🛡️ Isolation Pattern & Multi-Tenancy Scope (Aislamiento Cero-Confianza)
 A diferencia de sistemas convencionales que aplican filtros manuales en controladores (`WHERE dependencia_id = X`), SIGPT-X descentraliza la seguridad inyectando un **Global Scope en Eloquent**. 
 * **Cero Fuga de Datos (Data Leakage):** Cualquier consulta a la entidad `Entrega` filtra automáticamente los datos según la adscripción del servidor público autenticado a nivel de consulta SQL subyacente.
-* **Overhead Mínimo:** Evaluación en tiempo de ejecución $O(1)$ sin impacto apreciable en la latencia del motor de base de datos.
+* **Overhead Mínimo:** Evaluación en tiempo de ejecución **O(1)** sin impacto apreciable en la latencia del motor de base de datos.
 
 ### 2. ⚡ Motor Anti-Duplicidad Asíncrono
 * **Zero-Roundtrip Data Hybrid:** Serialización ligera de metadata relacional en el renderizado Blade mediante contratos JSON optimizados.
-* **Carga Cognitiva Reducida:** Validación instantánea en cliente $O(1)$ antes del submit, reduciendo en un **98% las transacciones fallidas o rechazadas por validaciones de base de datos** (`Unique Constraint Violations`).
+* **Carga Cognitiva Reducida:** Validación instantánea en cliente **O(1)** antes del submit, reduciendo en un **98% las transacciones fallidas o rechazadas por validaciones de base de datos** (`Unique Constraint Violations`).
 
 ### 3. 🔒 Trazabilidad e Inmutabilidad de Auditoría (Audit Trail)
 * **Auditoría Pasiva Registrada:** Cada mutación en la base de datos persiste la firma digital del capturista (`user_id`), estampa de tiempo UTC, IP de origen y correlación de folio normativo.
@@ -45,51 +45,6 @@ A diferencia de sistemas convencionales que aplican filtros manuales en controla
 | **UI Components** | Bootstrap 5.3 + Custom CSS | Diseño responsivo, ligero, compatible con estándares de accesibilidad (WCAG 2.1). |
 
 ---
-# 1. Optimización de dependencias sin herramientas de desarrollo
-composer install --optimize-autoloader --no-dev
-
-# 2. Caché de configuración y rutas para minimizar E/S en disco
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
-# 3. Permisos de directorio en servidor Linux (Nginx/Apache)
-sudo chown -R www-data:www-data storage bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-
----
-
-## 📄 Licencia & Derechos Reservados
-
-### 1. Propiedad Intelectual y Titularidad
-El diseño de arquitectura, código fuente, esquemas de base de datos, módulos de lógica de negocio, interfaces de usuario y documentación técnica pertenecientes a **SIGPT-X** son propiedad intelectual exclusiva de **Ing. Gustavo García Figueroa** y de las entidades corporativas o gubernamentales debidamente autorizadas.
-
-Todos los derechos de autor, marcas registradas y secretos comerciales derivados de esta plataforma están protegidos por las leyes de propiedad intelectual y los tratados internacionales correspondientes.
-
----
-
-### 2. Términos de Licencia (Licencia Privativa Enterprise)
-Queda estrictamente prohibida la reproducción, distribución, modificación, ingeniería inversa, descompilación, venta, sublicenciamiento o comercialización total o parcial de este software sin la autorización previa, explícita y por escrito de los titulares de los derechos.
-
-* **Uso Autorizado:** Otorgado únicamente mediante convenio, contrato de prestación de servicios o licencias corporativas/gubernamentales específicas.
-* **Uso No Autorizado:** El uso de este sistema o de sus componentes fuera del marco contractual establecido constituirá una infracción directa a la legislación de propiedad intelectual.
-
----
-
-### 3. Exención de Responsabilidad (Disclaimer)
-Este software se entrega *"tal cual"* (*AS IS*), sin garantías explícitas o implícitas de ningún tipo, incluidas, entre otras, las garantías de comerciabilidad o idoneidad para un propósito particular. En ningún caso los autores o titulares de los derechos serán responsables de reclamos, daños u otras responsabilidades derivadas del uso indebido o manipulación no autorizada de la plataforma.
-
----
-
-**Ingeniería de Software & Arquitectura de Sistemas**  
-**Derechos Reservados © 2026, Ing. Gustavo García Figueroa.** *All rights reserved.*
-
-### Pasos finales para actualizar en GitHub:
-
-```bash
-git add README.md
-git commit -m "docs: actualiza README.md con seccion completa de requisitos, instalacion y despliegue"
-git push origin main
 
 ## 📂 Arquitectura del Repositorio
 
@@ -112,3 +67,5 @@ SIGPT-X/
 │       └── errors/             # Vistas de excepciones HTTP (403, 404, 500)
 └── routes/
     └── web.php                 # Endpoints seguros protegidos por auth & RBAC
+
+/text
